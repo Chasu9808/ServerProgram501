@@ -1,14 +1,11 @@
 package com.busanit501.boot501.security;
 
 import com.busanit501.boot501.domain.Member;
-import com.busanit501.boot501.domain.MemberRole;
 import com.busanit501.boot501.repository.MemberRepository;
 import com.busanit501.boot501.security.dto.MemberSecurityDTO;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -79,6 +76,8 @@ public class CustomUserDetailsService implements UserDetailsService {
            member.getEmail(),
            member.isDel(),
            false,
+           member.getUuid(),
+           member.getFileName(),
            member.getRoleSet().stream().map(
                    memberRole -> new SimpleGrantedAuthority("ROLE_"+ memberRole.name())
            ).collect(Collectors.toList())

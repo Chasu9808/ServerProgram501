@@ -23,12 +23,15 @@ public class MemberSecurityDTO extends User {
     private String email;
     private boolean del;
     private boolean social;
+    private String uuid;
+    private String fileName;
 
     //생성자
     public MemberSecurityDTO(
             //로그인한 유저이름.
             String username,String password,String email,
             boolean del, boolean social,
+            String uuid, String fileName,
             //GrantedAuthority 를 상속한 클래스는 아무나 올수 있다. 타입으로
             Collection<? extends GrantedAuthority> authorities
     ){
@@ -38,5 +41,7 @@ public class MemberSecurityDTO extends User {
       this.email = email;
       this.del = del;
       this.social = social;
+      this.uuid = uuid;
+      this.fileName = fileName;
     }
 }

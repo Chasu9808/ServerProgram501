@@ -35,14 +35,22 @@
                                     aria-label="Toggle navigation">
                                 <span class="navbar-toggler-icon"></span>
                             </button>
-                            <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
-                                <ul class="navbar-nav me-auto mb-2 mb-lg-0" >
+                            <div class="collapse navbar-collapse " id="navbarTogglerDemo02">
+                                <ul class="navbar-nav me-auto mb-2 mb-lg-0 " >
                                     <li class="nav-item">
-                                        <a class="nav-link active" aria-current="page" href="/board/register">글작성</a>
+                                        <a class="nav-link" aria-current="page" href="/board/register">글작성</a>
                                     </li>
-
-                                    <li class="nav-item" th:if="${user} != null">
+                                    <li class="nav-item " th:if="${user} != null">
                                         <a class="nav-link" href="/member/logout">로그아웃</a>
+                                    </li>
+                                    <li class="nav-item " th:if="${user} != null">
+                                        <a class="nav-link" href="#">[[${user.mid}]]님 환영합니다.</a>
+                                    </li>
+                                    <li class="nav-item " th:if="${user} != null">
+                                        <div th:if="${user.uuid != null && user.fileName != null}">
+                                            <img class="profile-image mt-1 "
+                                                 th:src="|/view/s_${user.uuid}_${user.fileName}|">
+                                        </div>
                                     </li>
 
                                 </ul>

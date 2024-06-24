@@ -1,12 +1,15 @@
 package com.busanit501.boot501.controller;
 
-import com.busanit501.boot501.dto.*;
+import com.busanit501.boot501.dto.BoardDTO;
+import com.busanit501.boot501.dto.BoardListAllDTO;
+import com.busanit501.boot501.dto.PageRequestDTO;
+import com.busanit501.boot501.dto.PageResponseDTO;
 import com.busanit501.boot501.service.BoardService;
+import com.busanit501.boot501.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,9 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 // 화면, 데이터 같이 전달.
 @Controller
@@ -37,6 +38,7 @@ public class BoardController {
     private String uploadPath;
 
     private final BoardService boardService;
+    private final MemberService memberService;
 
     //깃 테스트2
 //깃 테스트3
@@ -49,6 +51,12 @@ public class BoardController {
         // dto 변경하기, 메서드도 변경하기. 댓글 갯수 포함, 첨부 이미지들 모두 포함.
         PageResponseDTO<BoardListAllDTO> responseDTO
                 = boardService.listWithAll(pageRequestDTO);
+
+        // 로그인 유저의 , 정보 가져오기.
+//        boolean loginCheck = false;
+//        memberService.
+//        if ()
+
         // 서버로부터 응답확인.
         log.info("BoardController 확인 중, responseDTO : " + responseDTO);
         log.info("BoardController 확인 중, user : " + user);
