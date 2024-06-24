@@ -40,6 +40,49 @@ public class MemberController {
     // 누가 처리? 스프링의 시큐리티가 알아서 처리함.
     // 자동로그인, remember-me 이름으로 서버에 와요.
 
+
+    //회원수정 폼
+    @GetMapping("/update")
+    public void updateGet() {
+        log.info("joinGet====================");
+    }
+
+    // 회원 수정 로직 처리
+    @PostMapping("/update")
+    public String updatePost(MemberJoinDTO memberJoinDTO, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+                           RedirectAttributes redirectAttributes) {
+        log.info("joinPost====================");
+        log.info("memberJoinDTO = " + memberJoinDTO);
+//        log.info("memberJoinDTO = 2 profileImage " + profileImage.getOriginalFilename());
+
+        // 프로필 이미지가 있을 경우, 이미지를 먼저 업로드 함.
+        String resultProfileImage = "";
+        if(profileImage != null && !profileImage.isEmpty()) {
+            UploadResultDTO uploadResultDTO = memberService.uploadProfileImage(profileImage);
+            // resultProfileImage -> s_uuid_파일명
+            resultProfileImage = uploadResultDTO.getLink();
+            log.info("memberJoinDTO 이미지가 있는 경우 : " + resultProfileImage);
+
+//        memberJoinDTO.addProfileImage(resultProfileImage);
+            String[] arr = resultProfileImage.split("_");
+            memberJoinDTO.setUuid(arr[1]);
+            memberJoinDTO.setFileName(arr[2]);
+        }
+
+        log.info("memberJoinDTO = 3 프로필 이미지 있는 경우  " + memberJoinDTO);
+        // 회원 가입 로직 처리 없음.
+        try {
+            memberService.join(memberJoinDTO);
+        } catch (MemberService.MidExistException e) {
+            redirectAttributes.addFlashAttribute("error", "아이디 중복입니다");
+            return "redirect:/member/join";
+        }
+        // 회원 가입 성공시
+        redirectAttributes.addFlashAttribute("result","회원가입 성공");
+        return "redirect:/member/login";
+    }
+
+
     //회원가입 폼
     @GetMapping("/join")
     public void joinGet() {
@@ -52,7 +95,7 @@ public class MemberController {
                            RedirectAttributes redirectAttributes) {
         log.info("joinPost====================");
         log.info("memberJoinDTO = " + memberJoinDTO);
-        log.info("memberJoinDTO = 2 profileImage " + profileImage.getOriginalFilename());
+//        log.info("memberJoinDTO = 2 profileImage " + profileImage.getOriginalFilename());
 
         // 프로필 이미지가 있을 경우, 이미지를 먼저 업로드 함.
         String resultProfileImage = "";

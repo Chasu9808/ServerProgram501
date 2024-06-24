@@ -55,6 +55,23 @@ application.properties 에서 카카오 로그인 API 관련 설정 코드
 2가지만 변경
 
 -----------------------------------------------------------
+#카카오 로그인 API 관련 설정
+spring.security.oauth2.client.provider.kakao.authorization-uri=https://kauth.kakao.com/oauth/authorize
+spring.security.oauth2.client.provider.kakao.user-name-attribute=id
+spring.security.oauth2.client.provider.kakao.token-uri=https://kauth.kakao.com/oauth/token
+spring.security.oauth2.client.provider.kakao.user-info-uri=https://kapi.kakao.com/v2/user/me
+
+spring.security.oauth2.client.registration.kakao.client-name=kakao
+spring.security.oauth2.client.registration.kakao.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.kakao.redirect_uri=http://localhost:8080/login/oauth2/code/kakao
+# REST API 키 값 복붙
+spring.security.oauth2.client.registration.kakao.client-id=
+
+# secret 값 복붙
+spring.security.oauth2.client.registration.kakao.client-secret=
+spring.security.oauth2.client.registration.kakao.client-authentication-method=POST
+spring.security.oauth2.client.registration.kakao.scope=profile_nickname,account_email, profile_image
+
 
 코드 작업 순서
 1
@@ -73,3 +90,9 @@ application.properties 에서 카카오 로그인 API 관련 설정 코드
 <a href="/oauth2/authorization/kakao">
     <img th:src="@{/images/login/kakao_login_medium_narrow.png}" alt="카카오 로그인 화면">
 </a>
+
+3. 동의 화면이 나오고 나서, 시큐리티 타입에 맞게 설정.
+시큐리티 원하는 UserDetails 타입으로 반환 해주기 원해요.
+그래서, 그 틀 맞춰서 추가 설정.
+
+

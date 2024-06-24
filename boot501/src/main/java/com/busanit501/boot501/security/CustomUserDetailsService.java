@@ -78,6 +78,7 @@ public class CustomUserDetailsService implements UserDetailsService {
            false,
            member.getUuid(),
            member.getFileName(),
+           member.getProfileImageServer(),
            member.getRoleSet().stream().map(
                    memberRole -> new SimpleGrantedAuthority("ROLE_"+ memberRole.name())
            ).collect(Collectors.toList())

@@ -2,6 +2,7 @@ package com.busanit501.boot501.config;
 
 import com.busanit501.boot501.security.CustomUserDetailsService;
 import com.busanit501.boot501.security.handler.Custom403Handler;
+import com.busanit501.boot501.security.handler.CustomSocialLoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
@@ -72,8 +74,9 @@ public class CustomSecurityConfig {
                 // 권한  관리자만, 예제로 , 수정폼은 권한이 관리자여야 함.
                 .requestMatchers("/admin").hasRole("ADMIN")
                 // 위의 접근 제어 목록 외의 , 다른 어떤 요청이라도 반드시 인증이 되어야 접근이 된다.
-                .anyRequest().authenticated();
-//                .anyRequest().permitAll();
+//                .anyRequest().authenticated();
+                //확인용으로 사용하기.
+                .anyRequest().permitAll();
 
         //403 핸들러 적용하기.
         http.exceptionHandling(
@@ -98,8 +101,13 @@ public class CustomSecurityConfig {
 
         //카카오 로그인 API 설정
         http.oauth2Login(
+                // 로그인 후 처리 , 적용하기.
                 oauthLogin -> oauthLogin.loginPage("/member/login")
+                        .successHandler(authenticationSuccessHandler())
         );
+
+
+
 
     // 캐시 설정 비활성화
 //        http.headers(
@@ -110,6 +118,12 @@ public class CustomSecurityConfig {
 
 
         return http.build();
+    }
+
+    // 소셜 로그인 후, 후처리 하는 빈등록.
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return new CustomSocialLoginSuccessHandler(passwordEncoder());
     }
 
     // 자동로그인 설정 2
