@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -47,6 +48,7 @@ public class MemberServiceImpl implements MemberService {
 //         Member member = modelMapper.map(memberJoinDTO, Member.class);
         log.info("memberJoinDTO = 4 MemberServiceImpl 프로필 이미지 있는 경우  " + memberJoinDTO);
         Member member = dtoToEntity(memberJoinDTO);
+        log.info("memberJoinDTO = 5 member MemberServiceImpl 프로필 이미지 있는 경우  " + member);
         //패스워드는 현재 평문 -> 암호로 변경.
         member.changePassword(passwordEncoder.encode(member.getMpw()));
         // 역할 추가. 기본 USER
@@ -60,6 +62,81 @@ public class MemberServiceImpl implements MemberService {
         // 디비에 적용하기.
         memberRepository.save(member);
 
+    }
+
+
+    // 일반회원 정보 수정.
+    @Override
+    public void update(MemberJoinDTO memberJoinDTO) throws MidExistException {
+
+        log.info("memberJoinDTO = 4 MemberServiceImpl 프로필 이미지 있는 경우  " + memberJoinDTO);
+        Member member = null;
+        if(memberJoinDTO.getUuid() == null) {
+            // 기존 이미지 재사용.
+            log.info("memberJoinDTO = 4-2 MemberServiceImpl 기존 이미지 재사용  " + memberJoinDTO);
+            Optional<Member> result = memberRepository.findById(memberJoinDTO.getMid());
+            Member oldMember = result.orElseThrow();
+            memberJoinDTO.setUuid(oldMember.getUuid());
+            memberJoinDTO.setFileName(oldMember.getFileName());
+            log.info("memberJoinDTO = 5 MemberServiceImpl 기존 이미지 재사용  " + memberJoinDTO);
+            member = dtoToEntity(memberJoinDTO);
+            log.info("memberJoinDTO = 6 MemberServiceImpl 기존 이미지 재사용 member " + member);
+            //패스워드는 현재 평문 -> 암호로 변경.
+            member.changePassword(passwordEncoder.encode(member.getMpw()));
+            // 역할 추가. 기본 USER
+            member.addRole(MemberRole.USER);
+
+
+            // 데이터 가 잘 알맞게 변경이 됐는지 여부,
+            log.info("updateMember: " + member);
+            log.info("updateMember: " + member.getRoleSet());
+
+            // 디비에 적용하기. -> 수정하기.
+            memberRepository.save(member);
+        }
+         else {
+            //새로운 이미지가 들어오는 경우
+            member = dtoToEntity(memberJoinDTO);
+            log.info("memberJoinDTO = 8 MemberServiceImpl 새로운 이미지가 들어오는 경우 member " + member);
+            //패스워드는 현재 평문 -> 암호로 변경.
+            member.changePassword(passwordEncoder.encode(member.getMpw()));
+            // 역할 추가. 기본 USER
+            member.addRole(MemberRole.USER);
+
+
+            // 데이터 가 잘 알맞게 변경이 됐는지 여부,
+            log.info("updateMember: " + member);
+            log.info("updateMember: " + member.getRoleSet());
+
+            // 디비에 적용하기. -> 수정하기.
+            memberRepository.save(member);
+        }
+
+
+    }
+
+    @Override
+    public void updateSocial(String mid, String mpw) throws MidExistException {
+        //기존 아이디와 중복되는지 여부 확인
+        Optional<Member> result = memberRepository.findByEmail(mid);
+        Member member = result.orElseThrow();
+
+        // 중복이 아니니 회원 가입 처리하기.
+//         Member member = modelMapper.map(memberJoinDTO, Member.class);
+        log.info("mid = 4 MemberServiceImpl 프로필 이미지 있는 경우  " + mid);
+//        Member member = dtoToEntity(memberJoinDTO);
+        //패스워드는 현재 평문 -> 암호로 변경.
+        member.changePassword(passwordEncoder.encode(mpw));
+        // 역할 추가. 기본 USER
+        member.addRole(MemberRole.USER);
+
+
+        // 데이터 가 잘 알맞게 변경이 됐는지 여부,
+        log.info("updateMember: " + member);
+        log.info("updateMember: " + member.getRoleSet());
+
+        // 디비에 적용하기. -> 수정하기.
+        memberRepository.save(member);
     }
 
     @Override
@@ -97,6 +174,7 @@ public class MemberServiceImpl implements MemberService {
             }
 
             //각각 이미지 파일명, 임시 목록에 담기.
+
 
             UploadResultDTO uploadResultDTO = UploadResultDTO.builder()
                     .uuid(uuid)

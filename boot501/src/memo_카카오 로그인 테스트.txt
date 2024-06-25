@@ -82,7 +82,7 @@ spring.security.oauth2.client.registration.kakao.scope=profile_nickname,account_
 3)
   //카카오 로그인 API 설정
         http.oauth2Login(
-                oauthLogin -> oauthLogin.loginPage("/member/login")
+                oauthLogin -> oauthLogin.loginPage("/shopMember/login")
         );
 
 2 login.html

@@ -142,7 +142,7 @@ public class CustomSecurityConfig {
  @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
  http.formLogin(
-                formLogin -> formLogin.loginPage("/member/login").permitAll()
+                formLogin -> formLogin.loginPage("/shopMember/login").permitAll()
         );
         // 기본은 csrf 설정이 on, 작업시에는 끄고 작업하기.
         http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable());
@@ -164,7 +164,7 @@ public class CustomSecurityConfig {
     }
 
 시큐리티 시스템에서 정한 로그 아웃.
-http://localhost:8080/member/login?logout
+http://localhost:8080/shopMember/login?logout
 
 3. 자동 로그인을 위한 테이블
 스프링에서 제공하는 테이블명 : persistent_logins , 동일해야함.

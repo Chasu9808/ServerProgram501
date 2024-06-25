@@ -40,8 +40,17 @@
                                     <li class="nav-item">
                                         <a class="nav-link" aria-current="page" href="/board/register">글작성</a>
                                     </li>
-                                    <li class="nav-item " th:if="${user} != null">
+                                    <li class="nav-item " th:if="${user} != null and ${user.social.toString().equals('false')}">
                                         <a class="nav-link" href="/member/logout">로그아웃</a>
+                                    </li>
+                                    <li class="nav-item " th:if="${user} != null and ${user.social.toString().equals('true')}">
+                                        <a class="nav-link" href="/member/kakaoLogout">소셜 로그아웃</a>
+                                    </li>
+                                    <li class="nav-item " th:if="${user} != null">
+                                        <a class="nav-link" href="/member/update">마이페이지</a>
+                                    </li>
+                                    <li class="nav-item " th:if="${user} != null">
+                                        <a class="nav-link" href="/sampleMap-Naver/1-map-simple">네이버지도 샘플</a>
                                     </li>
                                     <li class="nav-item " th:if="${user} != null">
                                         <a class="nav-link" href="#">[[${user.mid}]]님 환영합니다.</a>

@@ -5,7 +5,11 @@ import com.busanit501.boot501.dto.upload.UploadResultDTO;
 import com.busanit501.boot501.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +22,25 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Log4j2
 @RequiredArgsConstructor
 public class MemberController {
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String restAPIKEY;
+
     private final MemberService memberService;
+
+
+    //카카오 소셜 로그 아웃
+    // restAPIKEY -> application.properties 에 등록된  REST API key
+    // logout_redirect_uri : 로그 아웃 후 이동할 페이지. 카카오 개발자 사이트에서,
+    // 카카오 로그인 -> 고급 -> 로그아웃 리다이렉트 등록하기.
+    // 공식 문서 : https://developers.kakao.com/docs/latest/ko/kakaologin/common#logout-with-kakao-account
+    // 로그 아웃시, 2번째 클릭 확인 , 완전 계정 로그 아웃
+    // 로그 아웃시, 1번째 클릭 확인 , 이 서비스 로그 아웃, 다시 카카오 로그인시 로그인이 됨
+    @GetMapping("/kakaoLogout")
+    public String kakaoLogout(String error, String logout,
+                         RedirectAttributes redirectAttributes) {
+      return "redirect:https://kauth.kakao.com/oauth/logout?client_id="+restAPIKEY+"&logout_redirect_uri=http://localhost:8080/member/login";
+
+    }
 
     @GetMapping("/login")
     public void loginGet(String error, String logout,
@@ -42,16 +64,23 @@ public class MemberController {
 
 
     //회원수정 폼
+    // 1) 소셜로 로그인 했을 경우
+    // 2) 직접 로그인 했을 경우.
     @GetMapping("/update")
-    public void updateGet() {
-        log.info("joinGet====================");
+    public void updateGet(@AuthenticationPrincipal UserDetails user, Model model) {
+        log.info("updateGet====================");
+        log.info("updateGet : " + user);
+        // 로그인 여부에 따라, 로그 아웃 표시하기.
+        model.addAttribute("user", user);
     }
 
-    // 회원 수정 로직 처리
+    // 회원 수정 로직 처리, 1) 소셜 로그인 경우, 패스워드만 변경
+    // 2) 직접 로그인시, 패스워드, 이메일, 프로필 이미지도 변경.
     @PostMapping("/update")
     public String updatePost(MemberJoinDTO memberJoinDTO, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
                            RedirectAttributes redirectAttributes) {
-        log.info("joinPost====================");
+        log.info("updatePost====================");
+        //현재 패스워드만 들어가 있음. 보이지 않게 mid, email 정보도 넘어옴.
         log.info("memberJoinDTO = " + memberJoinDTO);
 //        log.info("memberJoinDTO = 2 profileImage " + profileImage.getOriginalFilename());
 
@@ -70,16 +99,39 @@ public class MemberController {
         }
 
         log.info("memberJoinDTO = 3 프로필 이미지 있는 경우  " + memberJoinDTO);
-        // 회원 가입 로직 처리 없음.
+        // 회원 수정 로직 처리 없음.
         try {
-            memberService.join(memberJoinDTO);
+            //memberService.join(memberJoinDTO);
+            memberService.update(memberJoinDTO);
         } catch (MemberService.MidExistException e) {
             redirectAttributes.addFlashAttribute("error", "아이디 중복입니다");
-            return "redirect:/member/join";
+            return "redirect:/member/update";
         }
-        // 회원 가입 성공시
-        redirectAttributes.addFlashAttribute("result","회원가입 성공");
-        return "redirect:/member/login";
+        // 회원 수정 성공시
+        redirectAttributes.addFlashAttribute("result","회원수정 성공");
+        return "redirect:/member/logout";
+    }
+
+
+    @PostMapping("/updateSocial")
+    public String updateSocial(String mid, String mpw, RedirectAttributes redirectAttributes) {
+        log.info("updateSocial====================");
+        //현재 패스워드만 들어가 있음. 보이지 않게 mid, email 정보도 넘어옴.
+
+//        log.info("memberJoinDTO = 2 profileImage " + profileImage.getOriginalFilename());
+        log.info("mid : " + mid + ", mpw : " + mpw);
+
+        // 회원 수정 로직 처리 없음.
+        try {
+            //memberService.join(memberJoinDTO);
+            memberService.updateSocial(mid,mpw);
+        } catch (MemberService.MidExistException e) {
+            redirectAttributes.addFlashAttribute("error", "아이디 중복입니다");
+            return "redirect:/member/update";
+        }
+        // 회원 수정 성공시
+        redirectAttributes.addFlashAttribute("result","회원수정 성공");
+        return "redirect:/board/list";
     }
 
 

@@ -18,34 +18,29 @@
                 </div>
                 <div class="card-body">
                     <form id="registrationForm" action="/member/update" method="post">
-                        <div class="input-group mb-3">
+                        <div class="input-group mb-3" th:if="${user.social.toString().equals('false')} ">
                             <span class="input-group-text">MID</span>
-                            <input type="text" name="mid" class="form-control">
+                            <input type="text"  name="mid" class="form-control" th:value="${user.mid}" readonly>
                         </div>
 
-                        <div class="input-group mb-3">
+                        <div class="input-group mb-3" th:if="${user.social.toString().equals('false')} ">
                             <span class="input-group-text">MPW</span>
-                            <input type="password" name="mpw" class="form-control">
+                            <input type="password"  name="mpw" class="form-control">
                         </div>
 
-                        <div class="input-group mb-3">
+                        <div class="input-group mb-3" th:if="${user.social.toString().equals('false')} ">
                             <span class="input-group-text">EMAIL</span>
-                            <input type="email" name="email" class="form-control">
+                            <input type="email" name="email" class="form-control" th:value="${user.email}">
                         </div>
 
 <!--                        파일 첨부 하는 화면 넣기-->
 <!--                        글작성시, 레스트로 업로드 하는 방식 그대로 재사용해보기-->
-                        <div class="mb-3 input-group">
+                        <div class="mb-3 input-group" th:if="${user.social.toString().equals('false')} ">
 <!--                            <span class="input-group-text">첨부파일  </span>-->
                             <input class="form-control" type="file" id="profileImage" name="profileImage" accept="image/*">
                         </div>
                         <!--    첨부 파일 이미지 미리 보기 화면, -->
                         <div class="row mt-3">
-<!--                            <div class="col">-->
-<!--                                <div class="d-flex uploadResult" style="flex-wrap: wrap">-->
-
-<!--                                </div>-->
-<!--                            </div>-->
                             <div id="preview-container">
                                 <img id="imagePreview" src="" alt="Image Preview" style="display: none;">
                             </div>
@@ -54,45 +49,52 @@
 
 
                         <div class="my-4">
-                            <div class="float-end">
-                                <button type="submit" class="btn btn-primary" onclick="submitForm()">회원가입</button>
+                            <div class="float-end" th:if="${user.social.toString().equals('false')} " >
+                                <button type="button" class="btn btn-primary" onclick="submitForm()">회원수정하기</button>
+                                <button type="reset" class="btn btn-secondary">초기화</button>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <form id="registrationForm2" action="/member/updateSocial" method="post" th:if="${user.social.toString().equals('true')} ">
+                        <div th:if="${user.social.toString().equals('true')} ">
+                            <h1>소셜 로그인 경우, 임시로 패스워드만 변경함</h1>
+                        </div>
+                        <div>소셜 로그인 여부 : [[${user.social}]]</div>
+                        <div class="input-group mb-3" th:if="${user.social.toString().equals('true')} ">
+                            <span class="input-group-text">MID</span>
+                            <input type="text" id="mid" name="mid" class="form-control" th:value="${user.mid}" readonly>
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">MPW</span>
+                            <input type="password" id="mpw" name="mpw" class="form-control">
+                        </div>
+
+                        <div class="input-group mb-3" th:if="${user.social.toString().equals('false')} ">
+                            <span class="input-group-text">EMAIL</span>
+                            <input type="email" name="email" class="form-control" th:value="${user.email}">
+                        </div>
+
+
+
+                        <div class="my-4">
+                            <div class="float-end" th:if="${user.social.toString().equals('true')} " >
+                                <button type="button" class="btn btn-primary" onclick="submitForm2()">소셜 회원수정하기</button>
                                 <button type="reset" class="btn btn-secondary">초기화</button>
                             </div>
                         </div>
                     </form>
+
+
                 </div><!--end card body-->
 
             </div><!--end card-->
         </div><!-- end col-->
     </div><!-- end row-->
 
-    <!--    첨부 파일 업로드 하는 폼 , 모달창 필요함. -->
-    <!--    댓글 작성 모달 창 폼-->
-    <!-- Modal -->
-    <div class="modal uploadModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4>업로드 파일</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="input-group mb-3">
-                        <!--                        <span class="input-group-text">첨부 파일</span>-->
-                        <input type="file" name="files"
-                               class="form-control" ></input>
-                    </div>
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary closeRegisterBtn" data-bs-dismiss="modal">Close
-                    </button>
-                    <button type="button" class="btn btn-primary uploadBtn">업로드하기</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--모달창 끝-->
     <!--    axios 사용하기 위한 도구 설치-->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!--    우리가 정의한 /js/reply.js 불러오기-->
@@ -102,115 +104,33 @@
 </div>
 
 <script layout:fragment="javascript" th:inline="javascript">
-
-    const error = [[${error}]]
-
-    if(error && error === 'mid'){
-        alert("동일한 MID를 가진 계정이 존재합니다.")
-    }
-
-    // 회원 가입시 프로필 이미지 , 모달창, 미리보기 화면, 엑스 표시, 엑스 클릭시 이벤트 처리
-    // 회원 가입 로직 처리시, 이미지 함께 처리.
-    // 업로드 모달창 띄우기.
-    // 모달 댓글 폼 표시하기=====================================================
-    const uploadModal = new bootstrap.Modal(document.querySelector(".uploadModal"))
-
-    // 필요한 요소 준비물 준비.
-    const uploadFileBtn = document.querySelector(".uploadFileBtn")
-
-    // 이벤트 처리하기.
-    uploadFileBtn.addEventListener("click", function (e) {
-
-        e.preventDefault()
-        e.stopPropagation()
-        uploadModal.show()
-    }, false)
-
-    // 서버에 이미지들 보내기, axios 이용해서 비동기 통신으로 데이터만 전달중
-    document.querySelector(".uploadBtn").addEventListener("click",function (e){
-        // 여기에 이미지 파일들을 담을 예정.
-        const formObj = new FormData();
-        // 파일 선택에서 선택된 이미지들.
-        const fileInput= document.querySelector("input[name='files']");
-        console.log("파일 이미지 확인 : " + fileInput.files)
-
-        const files = fileInput.files;
-
-        for(let i = 0; i < files.length; i++) {
-            formObj.append("files", files[i]);
-        }
-        uploadToServer(formObj).then(result => {
-            // 미디어 서버에 이미지 업로드가 다 된 상태(성공) 후
-            // 이미지를 출력 해보자.
-            for ( const uploadResult of result){
-                showUploadFile(uploadResult)
+const profileImageCheck = [[${user.social}]]
+console.log(profileImageCheck)
+if(!profileImageCheck) {
+    // 회원가입시 이미지 미리보기 이벤트 동작
+    document.getElementById('profileImage').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imagePreview = document.getElementById('imagePreview');
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
             }
-            console.log(result)
-            uploadModal.hide()
-        }).catch(e => {
-            uploadModal.hide()
-        })
-    },false)
-
-    const uploadResult = document.querySelector(".uploadResult")
-
-    //파일첨부를 했을 때, 이미지의 결과를 보여주는 함수
-    function showUploadFile({uuid,fileName,link}) {
-        const str = `<div class="card col-4">
-        <div class="card-header d-flex justify-content-center">
-        ${fileName}
-        <button class="btn-sm btn-danger" onclick="javascript:removeFile('${uuid}','${fileName}',this)">X</button>
-        </div>
-        <div class="card-body">
-            <img src="/view/${link}" data-src="${uuid+"_"+fileName}">
-        </div>
-        </div>
-`
-        uploadResult.innerHTML += str
-    }
-
-    //X 표시를 클릭시 이미지 삭제 하는 함수
-    function removeFile(uuid,fileName,obj) {
-        console.log("uuid : " + uuid)
-        console.log("fileName : " + fileName)
-        console.log("obj : " + obj)
-
-        // obj.closest , 현재 요소에서 가장 가까운 부모 요소를 찾기.
-        const targetDiv = obj.closest(".card")
-
-        removeFileToServer(uuid,fileName).then(data =>{
-            targetDiv.remove()
-        })
-    }
-
-    // 등록하기,
-    document.querySelector(".submitBtn").addEventListener("click",function (e){
-        e.preventDefault()
-        e.stopPropagation()
-
-        const target = document.querySelector(".uploadHidden")
-        const uploadFiles = uploadResult.querySelectorAll("img")
-        // InnerHTML 으로 사용할 변수,
-        let str = ''
-        for(let i = 0; i < uploadFiles.length; i++) {
-            const uploadFile = uploadFiles[i]
-            // imgLink = uuid_fileName 형식으로 전달하기.
-            const imgLink = uploadFile.getAttribute("data-src")
-
-            str += `<input type='hidden' name='fileNames' value='${imgLink}'>`
+            reader.readAsDataURL(file);
+        } else {
+            document.getElementById('imagePreview').style.display = 'none';
         }
-        target.innerHTML = str;
-        //전송 하는 기능
-        document.querySelector("form").submit();
+    });
+}
 
-    },false)
 
     //등록하기, 2번째 버전
     function submitForm() {
         const form = document.getElementById('registrationForm');
         const formData = new FormData(form);
 
-        axios.post('/member/join', formData, {
+        axios.post('/member/update', formData, {
             //폼 방식에서, 이미지와 일반 문자열을 서버에 전달시
             // 전달 방식을 multipart/form-data 꼭~~~ 주의사항.
             headers: {
@@ -218,16 +138,37 @@
             }
         })
             .then(response => {
-                alert('회원가입이 완료되었습니다!');
+                alert('회원수정이 완료되었습니다!');
                 console.log(response.data);
+                self.location = "/member/logout"
             })
             .catch(error => {
-                alert('회원가입 중 오류가 발생했습니다.');
+                alert('회원수정 중 오류가 발생했습니다.');
                 console.error(error);
             });
     }
 
+    //수정하기 소셜, 2번째 버전
+    function submitForm2() {
+        const form = document.getElementById('registrationForm2');
+        const formData = new FormData(form);
 
-
+        axios.post('/member/updateSocial', formData, {
+            //폼 방식에서, 이미지와 일반 문자열을 서버에 전달시
+            // 전달 방식을 multipart/form-data 꼭~~~ 주의사항.
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(response => {
+                alert('회원수정이 완료되었습니다!');
+                console.log(response.data);
+                self.location = "/member/logout"
+            })
+            .catch(error => {
+                alert('회원수정 중 오류가 발생했습니다.');
+                console.error(error);
+            });
+    }
 
 </script>
