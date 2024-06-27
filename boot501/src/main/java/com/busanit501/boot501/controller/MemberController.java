@@ -6,16 +6,17 @@ import com.busanit501.boot501.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/member")
@@ -40,6 +41,21 @@ public class MemberController {
                          RedirectAttributes redirectAttributes) {
       return "redirect:https://kauth.kakao.com/oauth/logout?client_id="+restAPIKEY+"&logout_redirect_uri=http://localhost:8080/member/login";
 
+    }
+
+    // 중복아이디 검사, 메서드에서, 레스트 형식으로 checkID
+    @GetMapping("/checkID/{mid}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getResourceByMid(@PathVariable String mid) {
+            boolean result = memberService.checkMid(mid);
+        Map<String, Object> resultMap = new HashMap<>();
+        if (result) {
+            resultMap.put("result", true);
+            return ResponseEntity.ok(resultMap);
+        } else {
+            resultMap.put("result", false);
+            return ResponseEntity.ok(resultMap);
+        }
     }
 
     @GetMapping("/login")

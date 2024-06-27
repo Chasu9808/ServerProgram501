@@ -183,6 +183,7 @@ public class BoardController {
 
     }
 
+
     public void removeFiles(List<String> files) {
         for (String fileName : files) {
             Resource resource = new FileSystemResource(

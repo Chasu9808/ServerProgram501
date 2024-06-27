@@ -20,7 +20,9 @@
                     <form id="registrationForm" action="/member/join" method="post">
                         <div class="input-group mb-3">
                             <span class="input-group-text">MID</span>
-                            <input type="text" name="mid" class="form-control">
+                            <input type="text" name="mid" class="form-control" id="inputMid">
+<!--                            <span class="input-group-text"><button class="btn btn-primary checkIdBtn" onclick="lookupId()">중복검사</button></span>-->
+                            <span class="input-group-text"><button class="btn btn-primary checkIdBtn">중복검사</button></span>
                         </div>
 
                         <div class="input-group mb-3">
@@ -29,8 +31,22 @@
                         </div>
 
                         <div class="input-group mb-3">
+                            <span class="input-group-text">MPW확인</span>
+                            <input type="password" name="mpw2" class="form-control">
+                        </div>
+
+                        <div class="input-group mb-3">
                             <span class="input-group-text">EMAIL</span>
                             <input type="email" name="email" class="form-control">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">이름</span>
+                            <input type="text" name="memberName" class="form-control">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">주소</span>
+                            <input type="text" name="address" class="form-control">
                         </div>
 
 <!--                        파일 첨부 하는 화면 넣기-->
@@ -55,7 +71,7 @@
 
                         <div class="my-4">
                             <div class="float-end">
-                                <button type="submit" class="btn btn-primary" onclick="submitForm()">회원가입</button>
+                                <button type="button" class="btn btn-primary" onclick="submitForm()">회원가입</button>
                                 <button type="reset" class="btn btn-secondary">초기화</button>
                             </div>
                         </div>
@@ -66,33 +82,6 @@
         </div><!-- end col-->
     </div><!-- end row-->
 
-    <!--    첨부 파일 업로드 하는 폼 , 모달창 필요함. -->
-    <!--    댓글 작성 모달 창 폼-->
-    <!-- Modal -->
-    <div class="modal uploadModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4>업로드 파일</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="input-group mb-3">
-                        <!--                        <span class="input-group-text">첨부 파일</span>-->
-                        <input type="file" name="files"
-                               class="form-control" ></input>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary closeRegisterBtn" data-bs-dismiss="modal">Close
-                    </button>
-                    <button type="button" class="btn btn-primary uploadBtn">업로드하기</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--모달창 끝-->
     <!--    axios 사용하기 위한 도구 설치-->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!--    우리가 정의한 /js/reply.js 불러오기-->
@@ -102,6 +91,54 @@
 </div>
 
 <script layout:fragment="javascript" th:inline="javascript">
+    document.querySelector(".checkIdBtn").addEventListener("click", function (e) {
+        e.preventDefault()
+        e.stopPropagation()
+        lookupId()
+    },false)
+
+    //inputMid 중복검사,
+    async function lookupId() {
+        // Get the value from the input field
+        const inputMid = document.getElementById('inputMid').value;
+        console.log("inputMid : " + inputMid )
+
+        if (inputMid) {
+            try {
+                // Use Axios to make a GET request
+                const response = await axios.get(`/member/checkID/${inputMid}`);
+
+                // Handle the response from the server
+                console.log('Response data:', response.data);
+                if (response.data.result) {
+                    // console.log("중복아이디입니다. 변경해주세요!")
+                    alert("중복아이디입니다. 변경해주세요!")
+                } else {
+                    // console.log("사용 가능한 아이디입니다.")
+                    alert("사용 가능한 아이디입니다.")
+                }
+
+            } catch (error) {
+                if (error.response && error.response.status === 429) {
+                    const retryAfter = error.response.headers['retry-after'];
+                    const retryAfterSeconds = parseInt(retryAfter, 10);
+                    const retryTime = new Date(Date.now() + retryAfterSeconds * 1000);
+
+                    // document.getElementById('message').innerText = `Too many requests. Please try again after ${retryAfterSeconds} seconds, at ${retryTime.toLocaleTimeString()}.`;
+                    alert(`요청이 너무 많습니다. ${retryAfterSeconds} 초 후,  약 ${retryTime.toLocaleTimeString()} 이후로 접속해주세요 `)
+                } else {
+                    // document.getElementById('message').innerText = 'Error: ' + error.message;
+                }
+                // Handle any errors
+                console.error('중복 아이디 검사 실패 :', error);
+                alert('중복 아이디 검사 실패 ');
+            }
+        } else {
+            console.error('아이디를 입력해주세요.');
+            alert('아이디를 입력해주세요.');
+
+        }
+    }
 
     // 회원가입시 이미지 미리보기 이벤트 동작
     document.getElementById('profileImage').addEventListener('change', function(event) {
@@ -134,6 +171,7 @@
             .then(response => {
                 alert('회원가입이 완료되었습니다!');
                 console.log(response.data);
+                self.location = "/member/login"
             })
             .catch(error => {
                 alert('회원가입 중 오류가 발생했습니다.');

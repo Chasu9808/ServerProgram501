@@ -12,6 +12,10 @@ public interface MemberService {
 
     }
 
+    //중복 아이디 검사
+
+    boolean checkMid(String mid);
+
     void join(MemberJoinDTO memberJoinDTO) throws MidExistException;
 
     //회원 수정 재사용. join
@@ -26,6 +30,8 @@ public interface MemberService {
                 .mid(memberJoinDTO.getMid())
                 .mpw(memberJoinDTO.getMpw())
                 .email(memberJoinDTO.getEmail())
+                .memberName(memberJoinDTO.getMemberName())
+                .address(memberJoinDTO.getAddress())
                 .uuid(memberJoinDTO.getUuid())
                 .fileName(memberJoinDTO.getFileName())
                 .build();

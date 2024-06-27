@@ -13,6 +13,10 @@ public class MemberJoinDTO {
     private String email;
 //    private boolean del;
 //    private boolean social;
+
+    private String memberName;
+    private String address;
+
     private String uuid;
     private String fileName;
     //첨부 파일 이름들

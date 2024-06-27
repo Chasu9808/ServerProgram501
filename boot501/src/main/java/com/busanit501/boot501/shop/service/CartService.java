@@ -1,6 +1,8 @@
 package com.busanit501.boot501.shop.service;
 
 
+import com.busanit501.boot501.domain.Member;
+import com.busanit501.boot501.repository.MemberRepository;
 import com.busanit501.boot501.shop.dto.CartDetailDto;
 import com.busanit501.boot501.shop.dto.CartItemDto;
 import com.busanit501.boot501.shop.dto.CartOrderDto;
@@ -8,11 +10,9 @@ import com.busanit501.boot501.shop.dto.OrderDto;
 import com.busanit501.boot501.shop.entity.Cart;
 import com.busanit501.boot501.shop.entity.CartItem;
 import com.busanit501.boot501.shop.entity.Item;
-import com.busanit501.boot501.shop.entity.ShopMember;
 import com.busanit501.boot501.shop.repository.CartItemRepository;
 import com.busanit501.boot501.shop.repository.CartRepository;
 import com.busanit501.boot501.shop.repository.ItemRepository;
-import com.busanit501.boot501.shop.repository.ShopMemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +21,7 @@ import org.thymeleaf.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,26 +29,29 @@ import java.util.List;
 public class CartService {
 
     private final ItemRepository itemRepository;
-    private final ShopMemberRepository memberRepository;
+    // 합치기 수정
+    private final MemberRepository memberRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final OrderService orderService;
 
-    public Long addCart(CartItemDto cartItemDto, String email){
+    public Long addCart(CartItemDto cartItemDto, String email) {
 
         Item item = itemRepository.findById(cartItemDto.getItemId())
                 .orElseThrow(EntityNotFoundException::new);
-        ShopMember shopMember = memberRepository.findByEmail(email);
-
-        Cart cart = cartRepository.findByShopMemberId(shopMember.getId());
-        if(cart == null){
-            cart = Cart.createCart(shopMember);
+        // 합치기 수정
+        Optional<Member> result = memberRepository.findByEmail(email);
+        Member member = result.orElseThrow();
+        // 합치기 수정
+        Cart cart = cartRepository.findByMemberMid(member.getMid());
+        if (cart == null) {
+            cart = Cart.createCart(member);
             cartRepository.save(cart);
         }
 
         CartItem savedCartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId());
 
-        if(savedCartItem != null){
+        if (savedCartItem != null) {
             savedCartItem.addCount(cartItemDto.getCount());
             return savedCartItem.getId();
         } else {
@@ -58,13 +62,16 @@ public class CartService {
     }
 
     @Transactional(readOnly = true)
-    public List<CartDetailDto> getCartList(String email){
+    public List<CartDetailDto> getCartList(String email) {
 
         List<CartDetailDto> cartDetailDtoList = new ArrayList<>();
 
-        ShopMember shopMember = memberRepository.findByEmail(email);
-        Cart cart = cartRepository.findByShopMemberId(shopMember.getId());
-        if(cart == null){
+        // 합치기 수정
+        //ShopMember shopMember = memberRepository.findByEmail(email);
+        Optional<Member> result = memberRepository.findByEmail(email);
+        Member member = result.orElseThrow();
+        Cart cart = cartRepository.findByMemberMid(member.getMid());
+        if (cart == null) {
             return cartDetailDtoList;
         }
 
@@ -73,20 +80,24 @@ public class CartService {
     }
 
     @Transactional(readOnly = true)
-    public boolean validateCartItem(Long cartItemId, String email){
-        ShopMember curShopMember = memberRepository.findByEmail(email);
+    public boolean validateCartItem(Long cartItemId, String email) {
+        // 합치기 수정
+
+//        ShopMember curShopMember = memberRepository.findByEmail(email);
+        Optional<Member> result = memberRepository.findByEmail(email);
+        Member curMember = result.orElseThrow();
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(EntityNotFoundException::new);
-        ShopMember savedShopMember = cartItem.getCart().getShopMember();
+        Member savedMember = cartItem.getCart().getMember();
 
-        if(!StringUtils.equals(curShopMember.getEmail(), savedShopMember.getEmail())){
+        if (!StringUtils.equals(curMember.getEmail(), savedMember.getEmail())) {
             return false;
         }
 
         return true;
     }
 
-    public void updateCartItemCount(Long cartItemId, int count){
+    public void updateCartItemCount(Long cartItemId, int count) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(EntityNotFoundException::new);
 
@@ -99,13 +110,13 @@ public class CartService {
         cartItemRepository.delete(cartItem);
     }
 
-    public Long orderCartItem(List<CartOrderDto> cartOrderDtoList, String email){
+    public Long orderCartItem(List<CartOrderDto> cartOrderDtoList, String email) {
         List<OrderDto> orderDtoList = new ArrayList<>();
 
         for (CartOrderDto cartOrderDto : cartOrderDtoList) {
             CartItem cartItem = cartItemRepository
-                            .findById(cartOrderDto.getCartItemId())
-                            .orElseThrow(EntityNotFoundException::new);
+                    .findById(cartOrderDto.getCartItemId())
+                    .orElseThrow(EntityNotFoundException::new);
 
             OrderDto orderDto = new OrderDto();
             orderDto.setItemId(cartItem.getItem().getId());
@@ -116,8 +127,8 @@ public class CartService {
         Long orderId = orderService.orders(orderDtoList, email);
         for (CartOrderDto cartOrderDto : cartOrderDtoList) {
             CartItem cartItem = cartItemRepository
-                            .findById(cartOrderDto.getCartItemId())
-                            .orElseThrow(EntityNotFoundException::new);
+                    .findById(cartOrderDto.getCartItemId())
+                    .orElseThrow(EntityNotFoundException::new);
             cartItemRepository.delete(cartItem);
         }
 

@@ -87,7 +87,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                     new MemberSecurityDTO(email, "1111", email,
                             false, true, null, null, profile_img, Arrays.asList(
                             new SimpleGrantedAuthority("ROLE_USER")
-                    ));
+                    ),null,null);
             memberSecurityDTO.setProps(paramMap);
             return memberSecurityDTO;
         } // 소셜 로그인 한 정보의 이메일이 디비에 없을 경우
@@ -107,7 +107,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                             member.getRoleSet().stream().map(
                                     memberRole -> new SimpleGrantedAuthority("ROLE_" + memberRole.name())
 
-                            ).collect(Collectors.toList())
+                            ).collect(Collectors.toList()),
+                            member.getMemberName(),
+                            member.getAddress()
                     );
             return memberSecurityDTO;
         }

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CartRepository extends JpaRepository<Cart, Long> {
 
-    Cart findByShopMemberId(Long memberId);
+    // 합치기 수정
+    Cart findByMemberMid(String memberId);
 
 }

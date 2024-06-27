@@ -81,7 +81,9 @@ public class CustomUserDetailsService implements UserDetailsService {
            member.getProfileImageServer(),
            member.getRoleSet().stream().map(
                    memberRole -> new SimpleGrantedAuthority("ROLE_"+ memberRole.name())
-           ).collect(Collectors.toList())
+           ).collect(Collectors.toList()),
+                member.getMemberName(),
+                member.getAddress()
         );
         log.info("CustomUserDetailsService loadUserByUsername memberSecurityDTO 확인 :" + memberSecurityDTO);
 

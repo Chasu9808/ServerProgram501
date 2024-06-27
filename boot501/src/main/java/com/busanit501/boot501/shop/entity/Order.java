@@ -1,6 +1,7 @@
 package com.busanit501.boot501.shop.entity;
 
 
+import com.busanit501.boot501.domain.Member;
 import com.busanit501.boot501.shop.constant.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,9 +20,16 @@ public class Order extends BaseEntity {
     @Column(name = "order_id")
     private Long id;
 
+
+    //합치기 전
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "member_id")
+//    private ShopMember shopMember;
+
+    //합치기 후
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private ShopMember shopMember;
+    private Member member;
 
     private LocalDateTime orderDate; //주문일
 
@@ -36,10 +44,14 @@ public class Order extends BaseEntity {
         orderItems.add(orderItem);
         orderItem.setOrder(this);
     }
-
-    public static Order createOrder(ShopMember shopMember, List<OrderItem> orderItemList) {
+    //합치기 전
+//    public static Order createOrder(ShopMember shopMember, List<OrderItem> orderItemList) {
+//        Order order = new Order();
+//        order.setShopMember(shopMember);
+//합치기 후
+    public static Order createOrder(Member member, List<OrderItem> orderItemList) {
         Order order = new Order();
-        order.setShopMember(shopMember);
+        order.setMember(member);
 
         for(OrderItem orderItem : orderItemList) {
             order.addOrderItem(orderItem);

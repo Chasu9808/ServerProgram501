@@ -36,11 +36,22 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
+    public boolean checkMid(String mid) {
+        Optional<Member> result = memberRepository.findByMid(mid);
+        if (result.isPresent()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public void join(MemberJoinDTO memberJoinDTO) throws MidExistException {
         //기존 아이디와 중복되는지 여부 확인
         String mid = memberJoinDTO.getMid();
-        boolean existMember = memberRepository.existsById(mid);
-        if (existMember) {
+        Optional<Member> result = memberRepository.findByMid(mid);
+
+        if (result.isPresent()) {
             throw new MidExistException();
         }
 
@@ -74,7 +85,7 @@ public class MemberServiceImpl implements MemberService {
         if(memberJoinDTO.getUuid() == null) {
             // 기존 이미지 재사용.
             log.info("memberJoinDTO = 4-2 MemberServiceImpl 기존 이미지 재사용  " + memberJoinDTO);
-            Optional<Member> result = memberRepository.findById(memberJoinDTO.getMid());
+            Optional<Member> result = memberRepository.findByMid(memberJoinDTO.getMid());
             Member oldMember = result.orElseThrow();
             memberJoinDTO.setUuid(oldMember.getUuid());
             memberJoinDTO.setFileName(oldMember.getFileName());
@@ -95,6 +106,7 @@ public class MemberServiceImpl implements MemberService {
             memberRepository.save(member);
         }
          else {
+            log.info("memberJoinDTO = 7 MemberServiceImpl 새로운 이미지가 들어오는 경우 memberJoinDTO " + memberJoinDTO);
             //새로운 이미지가 들어오는 경우
             member = dtoToEntity(memberJoinDTO);
             log.info("memberJoinDTO = 8 MemberServiceImpl 새로운 이미지가 들어오는 경우 member " + member);

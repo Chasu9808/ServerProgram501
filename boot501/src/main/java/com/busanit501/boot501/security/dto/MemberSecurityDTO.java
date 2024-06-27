@@ -23,6 +23,8 @@ public class MemberSecurityDTO extends User implements OAuth2User {
     private String mid;
     private String mpw;
     private String email;
+    private String memberName;
+    private String address;
     private boolean del;
     private boolean social;
     private String uuid;
@@ -40,7 +42,9 @@ public class MemberSecurityDTO extends User implements OAuth2User {
             String uuid, String fileName,
             String profileImageServer,
             //GrantedAuthority 를 상속한 클래스는 아무나 올수 있다. 타입으로
-            Collection<? extends GrantedAuthority> authorities
+            Collection<? extends GrantedAuthority> authorities,
+            String memberName,
+            String address
     ){
       super(username, password, authorities);
       this.mid = username;
@@ -51,6 +55,8 @@ public class MemberSecurityDTO extends User implements OAuth2User {
       this.social = social;
       this.uuid = uuid;
       this.fileName = fileName;
+      this.memberName = memberName;
+      this.address = address;
     }
 
     // 카카오 인증 연동시 , 필수 재정의 메서드

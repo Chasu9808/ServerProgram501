@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, String> {
+public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 소셜 로그인이 아닌, 일반 로그인으로 검색하기.
     // N+1,한번에 다같이 조회를 하자. in 연산자 이용해서, 하나의 쿼리로 동작하기.
@@ -21,6 +21,10 @@ public interface MemberRepository extends JpaRepository<Member, String> {
     // 이메일으로 유저 확인.
     @EntityGraph(attributePaths = "roleSet")
     Optional<Member> findByEmail(String email);
+
+    // mid로 유저 확인.
+    @EntityGraph(attributePaths = "roleSet")
+    Optional<Member> findByMid(String mid);
 
     //DML 적용하기
     @Modifying
