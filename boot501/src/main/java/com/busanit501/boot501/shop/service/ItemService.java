@@ -5,10 +5,14 @@ import com.busanit501.boot501.shop.dto.ItemFormDto;
 import com.busanit501.boot501.shop.dto.ItemImgDto;
 import com.busanit501.boot501.shop.dto.ItemSearchDto;
 import com.busanit501.boot501.shop.dto.MainItemDto;
+import com.busanit501.boot501.shop.entity.CartItem;
 import com.busanit501.boot501.shop.entity.Item;
 import com.busanit501.boot501.shop.entity.ItemImg;
+import com.busanit501.boot501.shop.entity.OrderItem;
+import com.busanit501.boot501.shop.repository.CartItemRepository;
 import com.busanit501.boot501.shop.repository.ItemImgRepository;
 import com.busanit501.boot501.shop.repository.ItemRepository;
+import com.busanit501.boot501.shop.repository.OrderItemRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -30,6 +35,11 @@ public class ItemService {
     private final ItemImgService itemImgService;
 
     private final ItemImgRepository itemImgRepository;
+
+    private final CartItemRepository cartItemRepository;
+
+    private final OrderItemRepository orderItemRepository;
+
 
     public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> itemImgFileList) throws Exception{
 
@@ -83,6 +93,28 @@ public class ItemService {
         }
 
         return item.getId();
+    }
+
+    //상품 삭제
+    public void deleteItem(Long item_id) throws Exception {
+        //카트에 담긴 상품 삭제
+        Optional<CartItem> cartItemResult = cartItemRepository.findById(item_id);
+        if(cartItemResult.isPresent()){
+            cartItemRepository.deleteById(item_id);
+        }
+        //주문에 담긴 상품 삭제
+        Optional<OrderItem> orderItemResult = orderItemRepository.findById(item_id);
+        if (orderItemResult.isPresent()){
+            orderItemRepository.deleteById(item_id);
+        }
+        // 상품의 이미지들 삭제
+        itemImgService.deleteItemImg(item_id);
+
+        // 상품 삭제
+        itemRepository.deleteById(item_id);
+
+
+
     }
 
     @Transactional(readOnly = true)

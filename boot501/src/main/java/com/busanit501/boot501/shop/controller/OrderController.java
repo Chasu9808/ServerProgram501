@@ -6,6 +6,7 @@ import com.busanit501.boot501.shop.dto.OrderHistDto;
 import com.busanit501.boot501.shop.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
+@Log4j2
 public class OrderController {
 
     private final OrderService orderService;
@@ -42,11 +44,11 @@ public class OrderController {
             return new ResponseEntity<String>(sb.toString(), HttpStatus.BAD_REQUEST);
         }
 
-        String email = principal.getName();
+        String mid = principal.getName();
         Long orderId;
 
         try {
-            orderId = orderService.order(orderDto, email);
+            orderId = orderService.order(orderDto, mid);
         } catch(Exception e){
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -69,12 +71,13 @@ public class OrderController {
 
     @PostMapping("/order/{orderId}/cancel")
     public @ResponseBody ResponseEntity cancelOrder(@PathVariable("orderId") Long orderId , Principal principal){
-
+        log.info("OrderController : 확인 : orderId : " +orderId+ ", principal.getName() : " + principal.getName());
         if(!orderService.validateOrder(orderId, principal.getName())){
             return new ResponseEntity<String>("주문 취소 권한이 없습니다.", HttpStatus.FORBIDDEN);
         }
-
+        log.info("OrderController : 확인2 , 취소 실행전");
         orderService.cancelOrder(orderId);
+        log.info("OrderController : 확인3 , 취소 실행후");
         return new ResponseEntity<Long>(orderId, HttpStatus.OK);
     }
 

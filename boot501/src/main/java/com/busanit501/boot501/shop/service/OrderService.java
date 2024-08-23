@@ -40,7 +40,7 @@ public class OrderService {
 
     private final ItemImgRepository itemImgRepository;
 
-    public Long order(OrderDto orderDto, String email){
+    public Long order(OrderDto orderDto, String mid){
 
         Item item = itemRepository.findById(orderDto.getItemId())
                 .orElseThrow(EntityNotFoundException::new);
@@ -48,7 +48,7 @@ public class OrderService {
         // 합치기 수정
 
 //        ShopMember shopMember = memberRepository.findByEmail(email);
-        Optional<Member> result = memberRepository.findByEmail(email);
+        Optional<Member> result = memberRepository.findByMid(mid);
         Member Member = result.orElseThrow();
 
         List<OrderItem> orderItemList = new ArrayList<>();
@@ -62,10 +62,10 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderHistDto> getOrderList(String email, Pageable pageable) {
+    public Page<OrderHistDto> getOrderList(String mid, Pageable pageable) {
 
-        List<Order> orders = orderRepository.findOrders(email, pageable);
-        Long totalCount = orderRepository.countOrder(email);
+        List<Order> orders = orderRepository.findOrders(mid, pageable);
+        Long totalCount = orderRepository.countOrder(mid);
 
         List<OrderHistDto> orderHistDtos = new ArrayList<>();
 
@@ -87,10 +87,10 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public boolean validateOrder(Long orderId, String email){
+    public boolean validateOrder(Long orderId, String mid){
         // 합치기 수정
 //        ShopMember curShopMember = memberRepository.findByEmail(email);
-        Optional<Member> result = memberRepository.findByEmail(email);
+        Optional<Member> result = memberRepository.findByMid(mid);
         Member curMember = result.orElseThrow();
 
         Order order = orderRepository.findById(orderId)
@@ -111,10 +111,10 @@ public class OrderService {
         order.cancelOrder();
     }
 
-    public Long orders(List<OrderDto> orderDtoList, String email){
+    public Long orders(List<OrderDto> orderDtoList, String mid){
 // 합치기 수정
 //        ShopMember shopMember = memberRepository.findByEmail(email);
-        Optional<Member> result = memberRepository.findByEmail(email);
+        Optional<Member> result = memberRepository.findByMid(mid);
         Member Member = result.orElseThrow();
 
         List<OrderItem> orderItemList = new ArrayList<>();

@@ -70,7 +70,7 @@ public class CustomSecurityConfig {
         // 특정 페이지에 접근 권한 설정.
         http.authorizeRequests()
                 // 정적 자원 모두 허용.
-                .requestMatchers("/css/**", "/js/**","/images/**").permitAll()
+                .requestMatchers("/css/**", "/js/**","/images/**","/images2/**").permitAll()
                 // 리스트는 기본으로 다 들어갈수 있게., 모두 허용
                 .requestMatchers("/", "/board/list","/member/join", "/login","/member/login", "/joinUser","/joinForm","/findAll","/images/**","/members/**", "/item/**").permitAll()
                 // 로그인 후 확인 하기. 권한 예제) hasRole("USER"),hasRole("ADMIN")

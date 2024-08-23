@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.util.StringUtils;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -56,6 +58,27 @@ public class ItemImgService {
             String imgUrl = "/images/item/" + imgName;
             savedItemImg.updateItemImg(oriImgName, imgName, imgUrl);
         }
+    }
+
+    public void deleteItemImg(Long itemId) throws Exception{
+        //상품 등록시 , 반드시 이미지 등록
+//        ItemImg savedItemImg = itemImgRepository.findById(itemImgId)
+//                .orElseThrow(EntityNotFoundException::new);
+        List<ItemImg> result = itemImgRepository.findByItemId(itemId);
+        if(result != null && !result.isEmpty()){
+            for(ItemImg itemImg : result){
+                //기존 이미지 파일 삭제
+                if(!StringUtils.isEmpty(itemImg.getImgName())) {
+                    fileService.deleteFile(itemImgLocation+"/"+
+                            itemImg.getImgName());
+                }
+                itemImgRepository.deleteById(itemImg.getId());
+            }
+
+
+        }
+
+
     }
 
 }

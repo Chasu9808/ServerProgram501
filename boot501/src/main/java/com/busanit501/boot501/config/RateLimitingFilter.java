@@ -22,7 +22,8 @@ import java.util.concurrent.ConcurrentMap;
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final ConcurrentMap<String, RateLimit> rateLimitCache = new ConcurrentHashMap<>();
-    private static final int MAX_REQUESTS = 30;
+    // 테스트 중이라, 일단 높게
+    private static final int MAX_REQUESTS = 200;
     private static final Duration TIME_WINDOW = Duration.ofMinutes(1);
 
     @Override
